@@ -1,0 +1,27 @@
+{
+  "name": "webscrapping9",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+  "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CYNNNIA/webScrapping9.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CYNNNIA/webScrapping9/issues"
+  },
+  "homepage": "https://github.com/CYNNNIA/webScrapping9#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mongodb": "^6.10.0",
+    "mongoose": "^8.8.0",
+    "puppeteer": "^23.7.0"
+  }
+}
