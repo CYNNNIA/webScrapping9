@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-  "dev": "nodemon index.js"
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "homepage": "https://github.com/CYNNNIA/webScrapping9#readme",
   "dependencies": {
     "dotenv": "^16.4.5",
+    "fs": "^0.0.1-security",
     "mongodb": "^6.10.0",
     "mongoose": "^8.8.0",
     "puppeteer": "^23.7.0"
