@@ -45,69 +45,43 @@ const scrapeProduct = async () => {
   const page = await browser.newPage()
   await page.goto(url)
 
-  // Buscar "barbie"
   await page.type('#js-site-search-input', 'barbie')
   await page.click('.input-group-btn')
-  await page.waitForSelector('.glyphicon-chevron-right')
+  await page.waitForSelector('.product__listing')
 
   let allProducts = []
-  let hasNextPage = true
+  let previousHeight
 
-  while (hasNextPage) {
-    const title = await page.$$eval(
-      'a.name.js-analytics-productClick',
-      (nodes) => nodes.map((n) => n.innerText)
-    )
+  while (true) {
+    const productsOnPage = await page.evaluate(() => {
+      const titles = Array.from(
+        document.querySelectorAll('a.name.js-analytics-productClick')
+      ).map((el) => el.innerText)
+      const prices = Array.from(document.querySelectorAll('.price')).map(
+        (el) => el.innerText
+      )
+      const images = Array.from(
+        document.querySelectorAll('.product__listing.product__grid .thumb img')
+      ).map((el) => el.src)
 
-    const price = await page.$$eval('.price', (nodes) =>
-      nodes.map((n) => n.innerText)
-    )
+      return titles.map((title, index) => ({
+        title,
+        price: prices[index] || 'Precio no disponible',
+        image: images[index]
+      }))
+    })
 
-    const image = await page.$$eval(
-      '.product__listing.product__grid .thumb img',
-      (imgs) => imgs.map((img) => img.src)
-    )
-
-    const products = title.map((title, index) => ({
-      title,
-      price: price[index] || 'Precio no disponible',
-      image: image[index]
-    }))
-
-    allProducts = allProducts.concat(products)
+    allProducts = [...allProducts, ...productsOnPage]
 
     console.log(`Productos recogidos hasta ahora: ${allProducts.length}`)
 
-    // Intentar ir a la siguiente página
-    try {
-      const nextButton = await page.$(
-        'li.pagination-next a.glyphicon-chevron-right'
-      )
-      if (nextButton) {
-        const isVisible = await page.evaluate((btn) => {
-          const style = window.getComputedStyle(btn)
-          return (
-            style && style.display !== 'none' && style.visibility === 'visible'
-          )
-        }, nextButton)
+    previousHeight = await page.evaluate('document.body.scrollHeight')
+    await page.evaluate('window.scrollTo(0, document.body.scrollHeight)')
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    const newHeight = await page.evaluate('document.body.scrollHeight')
 
-        if (isVisible) {
-          await nextButton.click()
-          await page.waitForTimeout(2000) // Esperar para cargar la siguiente página
-        } else {
-          console.log('El botón de la siguiente página no es visible.')
-          hasNextPage = false
-        }
-      } else {
-        console.log('No hay botón de la siguiente página.')
-        hasNextPage = false
-      }
-    } catch (error) {
-      console.error(
-        'Error al intentar hacer clic en el botón de la siguiente página:',
-        error
-      )
-      hasNextPage = false
+    if (newHeight === previousHeight) {
+      break
     }
   }
 
